@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entropy Simulation</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0a0a0e;
+  color: #f8f6f0;
+  font-family: monospace;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #00ffdd;
+}
+
+.controls {
+  background: #1a1a24;
+  border: 1px solid #2a2a34;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.slider-wrap {
+  margin: 20px 0;
+}
+
+.slider-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  margin-bottom: 10px;
+  color: #6a6a7a;
+}
+
+input[type="range"] {
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(to right, #00ff88, #ffaa00, #ff4444);
+  outline: none;
+  border-radius: 3px;
+  -webkit-appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  border: 2px solid #0a0a0e;
+}
+
+.readout {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 32px;
+  font-weight: bold;
+  color: #00ffdd;
+}
+
+.canvas-wrapper {
+  background: #1a1a24;
+  border: 2px solid #2a2a34;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 500px;
+  background: #0d0d15;
+}
+
+.stats {
+  background: #1a1a24;
+  border: 1px solid #2a2a34;
+  padding: 15px;
+  display: flex;
+  justify-content: space-around;
+  font-size: 12px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: #00ffdd;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  color: #6a6a7a;
+  font-size: 10px;
+}
+
+button {
+  background: #ff4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  margin: 5px;
+  cursor: pointer;
+  font-family: monospace;
+  font-size: 11px;
+}
+
+button:hover {
+  background: #ff6666;
+}
+
+button.active {
+  background: #00ffdd;
+  color: #0a0a0e;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>ENTROPY SIMULATION — Order vs Chaos</h1>
+  
+  <div class="controls">
+    <div class="slider-wrap">
+      <div class="slider-label">
+        <span style="color:#00ff88">◀ DECENTRALIZED (High Entropy)</span>
+        <span style="color:#ff4444">CENTRALIZED (Low Entropy) ▶</span>
+      </div>
+      <input type="range" id="slider" min="0" max="100" value="50" oninput="updateCentralization(this.value)">
+      <div class="readout"><span id="pct">50</span>% Centralization</div>
+    </div>
+    
+    <div style="text-align:center;margin-top:15px">
+      <button id="btn-auto" class="active" onclick="toggleMode('auto')">AUTO</button>
+      <button id="btn-pause" onclick="toggleMode('pause')">PAUSE</button>
+      <button onclick="resetParticles()">RESET</button>
+    </div>
+  </div>
+  
+  <div class="canvas-wrapper">
+    <canvas id="canvas"></canvas>
+  </div>
+  
+  <div class="stats">
+    <div class="stat-item">
+      <span class="stat-value" id="particle-count">300</span>
+      <span class="stat-label">PARTICLES</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value" id="entropy-val">0.65</span>
+      <span class="stat-label">ENTROPY</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value" id="order-val">0.35</span>
+      <span class="stat-label">ORDER INDEX</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value" id="fps">60</span>
+      <span class="stat-label">FPS</span>
+    </div>
+  </div>
+</div>
+
+<script>
+console.log('Script started');
+
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+let W, H, centerX, centerY;
+let centralization = 50;
+let mode = 'auto';
+let particles = [];
+const PARTICLE_COUNT = 300;
+
+function resize() {
+  W = canvas.width = canvas.offsetWidth;
+  H = 500;
+  canvas.height = H;
+  centerX = W / 2;
+  centerY = H / 2;
+  console.log('Canvas resized:', W, 'x', H);
+}
+
+class Particle {
+  constructor() {
+    this.reset();
+  }
+  
+  reset() {
+    const pull = centralization / 100;
+    
+    if (Math.random() < pull) {
+      // Near center
+      const angle = Math.random() * Math.PI * 2;
+      const radius = Math.random() * 100;
+      this.x = centerX + Math.cos(angle) * radius;
+      this.y = centerY + Math.sin(angle) * radius;
+    } else {
+      // Random
+      this.x = Math.random() * W;
+      this.y = Math.random() * H;
+    }
+    
+    this.vx = (Math.random() - 0.5) * 4;
+    this.vy = (Math.random() - 0.5) * 4;
+    this.size = 3 + Math.random() * 2;
+    
+    // Color
+    const hue = 180 + Math.random() * 60; // Cyan to blue
+    this.color = `hsl(${hue}, 80%, 60%)`;
+  }
+  
+  update() {
+    if (mode === 'pause') return;
+    
+    const pull = centralization / 100;
+    
+    // Gravity toward center
+    if (pull > 0.2) {
+      const dx = centerX - this.x;
+      const dy = centerY - this.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      
+      if (dist > 10) {
+        const force = pull * 0.05;
+        this.vx += (dx / dist) * force;
+        this.vy += (dy / dist) * force;
+      }
+    }
+    
+    // Random motion
+    const chaos = (1 - pull) * 0.8;
+    this.vx += (Math.random() - 0.5) * chaos;
+    this.vy += (Math.random() - 0.5) * chaos;
+    
+    // Damping
+    this.vx *= 0.96;
+    this.vy *= 0.96;
+    
+    // Move
+    this.x += this.vx;
+    this.y += this.vy;
+    
+    // Bounce
+    if (this.x < 0) { this.x = 0; this.vx *= -0.8; }
+    if (this.x > W) { this.x = W; this.vx *= -0.8; }
+    if (this.y < 0) { this.y = 0; this.vy *= -0.8; }
+    if (this.y > H) { this.y = H; this.vy *= -0.8; }
+  }
+  
+  draw() {
+    // Glow
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
+    ctx.fillStyle = this.color.replace('60%', '30%)').replace('hsl', 'hsla').replace(')', ', 0.3)');
+    ctx.fill();
+    
+    // Core
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+  }
+}
+
+function init() {
+  particles = [];
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push(new Particle());
+  }
+  console.log('Initialized', particles.length, 'particles');
+}
+
+function calculateEntropy() {
+  let totalDist = 0;
+  particles.forEach(p => {
+    const dx = p.x - centerX;
+    const dy = p.y - centerY;
+    totalDist += Math.sqrt(dx * dx + dy * dy);
+  });
+  const avgDist = totalDist / particles.length;
+  const maxDist = Math.sqrt(W * W / 4 + H * H / 4);
+  return avgDist / maxDist;
+}
+
+let frameCount = 0;
+let lastTime = Date.now();
+
+function animate() {
+  // Clear
+  ctx.fillStyle = 'rgba(13, 13, 21, 0.25)';
+  ctx.fillRect(0, 0, W, H);
+  
+  // Draw nexus if centralized
+  if (centralization > 30) {
+    const size = 20 + (centralization / 100) * 40;
+    
+    // Rings
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, size + 20 * i, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(255, 68, 68, ${0.3 - i * 0.08})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+    
+    // Center
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, size, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255, 68, 68, 0.4)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255, 68, 68, 0.8)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    // Text
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 12px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('NEXUS', centerX, centerY);
+  }
+  
+  // Update and draw particles
+  particles.forEach(p => {
+    p.update();
+    p.draw();
+  });
+  
+  // Stats
+  const entropy = calculateEntropy();
+  document.getElementById('entropy-val').textContent = entropy.toFixed(2);
+  document.getElementById('order-val').textContent = (1 - entropy).toFixed(2);
+  
+  // FPS
+  frameCount++;
+  const now = Date.now();
+  if (now - lastTime >= 1000) {
+    document.getElementById('fps').textContent = frameCount;
+    frameCount = 0;
+    lastTime = now;
+  }
+  
+  requestAnimationFrame(animate);
+}
+
+function updateCentralization(val) {
+  centralization = parseInt(val);
+  document.getElementById('pct').textContent = val;
+  init();
+}
+
+function toggleMode(m) {
+  mode = m;
+  document.getElementById('btn-auto').classList.toggle('active', m === 'auto');
+  document.getElementById('btn-pause').classList.toggle('active', m === 'pause');
+}
+
+function resetParticles() {
+  init();
+}
+
+window.addEventListener('resize', () => {
+  resize();
+  init();
+});
+
+console.log('Setting up...');
+resize();
+init();
+animate();
+console.log('Animation started');
+</script>
+
+</body>
+</html>

@@ -1,0 +1,37 @@
+# Environment
+.env
+*.env.local
+
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build output
+dist/
+build/
+*.tgz
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Docker volumes (local)
+postgres_data/
+redis_data/
+
+# Certificates (local dev)
+nginx/certs/*.pem
+nginx/certs/*.crt
+nginx/certs/*.key

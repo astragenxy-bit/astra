@@ -1,0 +1,38 @@
+# ═══════════════════════════════════════════════════════
+# Cloudflare Workers — WorkLearn Edge Config
+# Deploy: npx wrangler deploy
+# ═══════════════════════════════════════════════════════
+name       = "worklearn-edge"
+main       = "workers/edge.js"
+compatibility_date = "2024-01-01"
+workers_dev        = false
+
+# Production routes
+routes = [
+  { pattern = "worklearn.vn/api/v1/*",    zone_name = "worklearn.vn" },
+  { pattern = "www.worklearn.vn/*",       zone_name = "worklearn.vn" },
+]
+
+[vars]
+ENVIRONMENT = "production"
+API_BASE    = "https://api.worklearn.vn"
+CACHE_TTL_JOBS    = "300"
+CACHE_TTL_COURSES = "600"
+CACHE_TTL_STATIC  = "86400"
+
+# KV namespace for edge caching
+[[kv_namespaces]]
+binding  = "CACHE"
+id       = "REPLACE_WITH_YOUR_KV_ID"
+
+# R2 bucket for media files (replaces MinIO in production)
+[[r2_buckets]]
+binding     = "MEDIA"
+bucket_name = "worklearn-media"
+
+# AI binding (Cloudflare Workers AI for lightweight inference)
+[ai]
+binding = "AI"
+
+[build]
+command = "echo 'No build needed for Workers'"

@@ -1,0 +1,26 @@
+{
+  "name": "worklearn-frontend",
+  "version": "2.0.0",
+  "description": "WorkLearn Platform Frontend",
+  "scripts": {
+    "dev":     "vite --host 0.0.0.0 --port 3000",
+    "build":   "vite build",
+    "preview": "vite preview",
+    "lint":    "eslint src/ --ext .js,.jsx"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk":     "^0.24.0",
+    "axios":                 "^1.7.2",
+    "react":                 "^18.3.1",
+    "react-dom":             "^18.3.1",
+    "react-router-dom":      "^6.23.1",
+    "zustand":               "^4.5.2",
+    "@tanstack/react-query": "^5.37.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react":  "^4.3.0",
+    "eslint":                "^8.57.0",
+    "eslint-plugin-react":   "^7.34.2",
+    "vite":                  "^5.2.11"
+  }
+}

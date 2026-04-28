@@ -1,21 +1,24 @@
-name = "worklearn-api"
+name = "worklearn-career"
 type = "javascript"
 account_id = "5e70260b2fb181962a8cf04f72a4b2ae"
+main = "src/index.js"
 workers_dev = true
-routes = [
-  { pattern = "career.jockerow.com/api/*", zone_name = "jockerow.com" },
-  { pattern = "career.jockerow.com/webhooks/*", zone_name = "jockerow.com" }
-]
 
 [env.production]
-route = "career.jockerow.com/api/*"
-zone_id = "218650b8dd1ee64549cc8161789ec30a"
+vars = { ENVIRONMENT = "production" }
 
 [build]
 command = "npm install"
+cwd = "./"
 
 [triggers]
 crons = ["0 0 * * *"]
+
+routes = [
+  { pattern = "career.jokerow.com/api/*", zone_name = "jokerow.com" },
+  { pattern = "career.jokerow.com/webhooks/*", zone_name = "jokerow.com" },
+  { pattern = "career.jokerow.com/health", zone_name = "jokerow.com" }
+]
 
 [[analytics_engine_datasets]]
 dataset = "worklearn_analytics"

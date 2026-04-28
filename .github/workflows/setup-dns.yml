@@ -1,0 +1,71 @@
+name: Setup Cloudflare DNS Record
+
+on:
+  workflow_dispatch:
+    inputs:
+      domain_name:
+        description: 'Subdomain name (e.g., career)'
+        required: true
+        default: 'career'
+      target:
+        description: 'Target (e.g., worklearn-career.pages.dev)'
+        required: true
+        default: 'worklearn-career.pages.dev'
+
+jobs:
+  setup-dns:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create/Update CNAME Record
+        env:
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          # Check if record exists
+          RECORD_ID=$(curl -s "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/dns_records?name=${{ github.event.inputs.domain_name }}.jokerow.com&type=CNAME" \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" | jq -r '.result[0].id // "null"')
+
+          if [ "$RECORD_ID" = "null" ] || [ -z "$RECORD_ID" ]; then
+            echo "📝 Creating new CNAME record..."
+            curl -X POST "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/dns_records" \
+              -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+              -H "Content-Type: application/json" \
+              --data "{
+                \"type\": \"CNAME\",
+                \"name\": \"${{ github.event.inputs.domain_name }}\",
+                \"content\": \"${{ github.event.inputs.target }}\",
+                \"ttl\": 1,
+                \"proxied\": true
+              }" | jq .
+          else
+            echo "🔄 Updating existing CNAME record (ID: $RECORD_ID)..."
+            curl -X PUT "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/dns_records/${RECORD_ID}" \
+              -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+              -H "Content-Type: application/json" \
+              --data "{
+                \"type\": \"CNAME\",
+                \"name\": \"${{ github.event.inputs.domain_name }}\",
+                \"content\": \"${{ github.event.inputs.target }}\",
+                \"ttl\": 1,
+                \"proxied\": true
+              }" | jq .
+          fi
+
+      - name: Verify DNS Record
+        env:
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          echo "✅ DNS Record Setup Complete"
+          echo ""
+          echo "Record Details:"
+          curl -s "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/dns_records?name=${{ github.event.inputs.domain_name }}.jokerow.com" \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" | jq '.result[] | {name, type, content, proxied, ttl}'
+          
+          echo ""
+          echo "🔗 Access your site at:"
+          echo "   https://${{ github.event.inputs.domain_name }}.jokerow.com"
+          echo ""
+          echo "⏱️ DNS may take 5-10 minutes to propagate globally"

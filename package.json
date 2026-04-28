@@ -1,18 +1,14 @@
 {
-  "name": "worklearn-workers",
-  "version": "1.0.0",
-  "description": "WorkLearn API Proxy - Cloudflare Workers",
-  "main": "src/index.js",
+  "name": "worklearn-ai",
+  "version": "0.0.1",
+  "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
-    "lint": "eslint src/",
-    "format": "prettier --write src/"
+    "dev": "cd frontend && vite",
+    "build": "cd frontend && npm run build",
+    "lint": "cd frontend && npm run lint",
+    "preview": "cd frontend && vite preview"
   },
-  "dependencies": {},
-  "devDependencies": {
-    "wrangler": "^3.45.0",
-    "eslint": "^8.57.0",
-    "prettier": "^3.2.5"
-  }
+  "workspaces": [
+    "frontend"
+  ]
 }

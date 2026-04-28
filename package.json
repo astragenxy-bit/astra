@@ -3,8 +3,6 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "cd frontend && vite",
-    "build": "cd frontend && npm install && npm run build",
-    "preview": "cd frontend && vite preview"
+    "build": "cd frontend && npm install && npm run build"
   }
 }

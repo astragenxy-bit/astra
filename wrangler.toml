@@ -1,0 +1,21 @@
+name = "worklearn-api"
+type = "javascript"
+account_id = "5e70260b2fb181962a8cf04f72a4b2ae"
+workers_dev = true
+routes = [
+  { pattern = "career.jockerow.com/api/*", zone_name = "jockerow.com" },
+  { pattern = "career.jockerow.com/webhooks/*", zone_name = "jockerow.com" }
+]
+
+[env.production]
+route = "career.jockerow.com/api/*"
+zone_id = "218650b8dd1ee64549cc8161789ec30a"
+
+[build]
+command = "npm install"
+
+[triggers]
+crons = ["0 0 * * *"]
+
+[[analytics_engine_datasets]]
+dataset = "worklearn_analytics"

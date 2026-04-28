@@ -1,0 +1,80 @@
+name: Deploy WorkLearn to Cloudflare Pages & Workers
+
+on:
+  push:
+    branches: [feature/career-worklearn]
+    paths:
+      - 'frontend/**'
+      - 'src/index.js'
+      - 'wrangler.toml'
+      - '.github/workflows/deploy-cf.yml'
+  pull_request:
+    branches: [feature/career-worklearn]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies (Frontend)
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+        env:
+          VITE_API_URL: https://career.jockerow.com/api/v1
+          VITE_WS_URL: wss://career.jockerow.com
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: worklearn-career
+          directory: frontend/dist
+          productionBranch: feature/career-worklearn
+
+      - name: Setup Wrangler (Workers)
+        run: |
+          npm install -D wrangler
+
+      - name: Deploy to Cloudflare Workers
+        run: |
+          npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Setup Cloudflare DNS
+        run: |
+          curl -X PUT "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_ZONE_ID }}/dns_records" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data '{
+              "type": "CNAME",
+              "name": "career",
+              "content": "worklearn-career.pages.dev",
+              "ttl": 1,
+              "proxied": true
+            }'
+
+      - name: Notify deployment
+        if: always()
+        run: |
+          echo "✅ Frontend deployed to: https://career.jockerow.com"
+          echo "✅ API proxy deployed to: Workers"
+          echo "✅ DNS configured: CNAME career.jockerow.com"

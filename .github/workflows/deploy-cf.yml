@@ -36,8 +36,8 @@ jobs:
           cd frontend
           npm run build
         env:
-          VITE_API_URL: https://career.jockerow.com/api/v1
-          VITE_WS_URL: wss://career.jockerow.com
+          VITE_API_URL: https://career.jokerow.com/api/v1
+          VITE_WS_URL: wss://career.jokerow.com
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
@@ -75,6 +75,6 @@ jobs:
       - name: Notify deployment
         if: always()
         run: |
-          echo "✅ Frontend deployed to: https://career.jockerow.com"
+          echo "✅ Frontend deployed to: https://career.jokerow.com"
           echo "✅ API proxy deployed to: Workers"
-          echo "✅ DNS configured: CNAME career.jockerow.com"
+          echo "✅ DNS configured: CNAME career.jokerow.com"

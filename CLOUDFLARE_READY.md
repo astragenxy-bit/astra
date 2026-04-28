@@ -12,7 +12,7 @@
 |-------------|-------|
 | `CLOUDFLARE_API_TOKEN` | Your Cloudflare API token |
 | `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare Account ID |
-| `CLOUDFLARE_ZONE_ID` | Your jockerow.com Zone ID |
+| `CLOUDFLARE_ZONE_ID` | Your jokerow.com Zone ID |
 
 **Or use GitHub CLI:**
 ```bash
@@ -37,13 +37,13 @@ git push origin feature/career-worklearn
 
 ```bash
 # Check frontend
-curl https://career.jockerow.com/
+curl https://career.jokerow.com/
 
 # Check health
-curl https://career.jockerow.com/health
+curl https://career.jokerow.com/health
 
 # Verify DNS
-nslookup career.jockerow.com
+nslookup career.jokerow.com
 ```
 
 ---
@@ -87,9 +87,9 @@ nslookup career.jockerow.com
 
 | URL | Service |
 |-----|---------|
-| **https://career.jockerow.com** | Frontend (Cloudflare Pages) |
-| **https://career.jockerow.com/api/** | API Proxy (Cloudflare Workers) |
-| **https://career.jockerow.com/health** | Health Check |
+| **https://career.jokerow.com** | Frontend (Cloudflare Pages) |
+| **https://career.jokerow.com/api/** | API Proxy (Cloudflare Workers) |
+| **https://career.jokerow.com/health** | Health Check |
 | **worklearn-career.pages.dev** | Direct Pages URL |
 | **worklearn-api.{account}.workers.dev** | Direct Workers URL |
 
@@ -122,8 +122,8 @@ const API_BACKEND = "https://your-api-server.com";
 ### Update Frontend Environment
 Build variables (set in Pages project):
 ```
-VITE_API_URL=https://career.jockerow.com/api/v1
-VITE_WS_URL=wss://career.jockerow.com
+VITE_API_URL=https://career.jokerow.com/api/v1
+VITE_WS_URL=wss://career.jokerow.com
 ```
 
 ---
@@ -207,7 +207,7 @@ wrangler tail
 - [ ] Review environment variables
 - [ ] Push to branch (triggers GitHub Actions)
 - [ ] Check deployment status in GitHub Actions tab
-- [ ] Verify at https://career.jockerow.com
+- [ ] Verify at https://career.jokerow.com
 
 ---
 
@@ -223,4 +223,4 @@ wrangler tail
 **Status:** 🟢 **Ready for Production**  
 **Branch:** `feature/career-worklearn`  
 **Platform:** Cloudflare Pages + Workers  
-**Domain:** `career.jockerow.com`
+**Domain:** `career.jokerow.com`

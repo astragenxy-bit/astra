@@ -6,7 +6,7 @@
 |-----------|---------|
 | **Frontend** | Cloudflare Pages (Static hosting) |
 | **API Proxy** | Cloudflare Workers (Edge computing) |
-| **Domain** | career.jockerow.com (via Cloudflare DNS) |
+| **Domain** | career.jokerow.com (via Cloudflare DNS) |
 | **Deployment** | GitHub Actions (auto) |
 
 ---
@@ -40,8 +40,8 @@ CLOUDFLARE_ZONE_ID=<your-zone-id>
 npx wrangler deploy
 
 # Routes:
-# - career.jockerow.com/api/* → Workers (API proxy)
-# - career.jockerow.com/* → Pages (Frontend)
+# - career.jokerow.com/api/* → Workers (API proxy)
+# - career.jokerow.com/* → Pages (Frontend)
 ```
 
 ### 4. DNS Configuration
@@ -112,8 +112,8 @@ astra/
 
 | URL | Điểm đến |
 |-----|----------|
-| https://career.jockerow.com | Frontend (Pages) |
-| https://career.jockerow.com/api/* | API Proxy (Workers) |
+| https://career.jokerow.com | Frontend (Pages) |
+| https://career.jokerow.com/api/* | API Proxy (Workers) |
 | https://worklearn-career.pages.dev | Pages direct |
 | https://worklearn-api.{account}.workers.dev | Workers direct |
 
@@ -132,7 +132,7 @@ astra/
 ```bash
 # Check Workers logs in Cloudflare Dashboard
 # Verify backend URL in src/index.js
-# Test: curl https://career.jockerow.com/api/v1/health
+# Test: curl https://career.jokerow.com/api/v1/health
 ```
 
 ### DNS not resolving
@@ -140,7 +140,7 @@ astra/
 # Verify CNAME record in Cloudflare Dashboard
 # Check zone ID is correct
 # Wait 5-10 minutes for propagation
-nslookup career.jockerow.com
+nslookup career.jokerow.com
 ```
 
 ---
